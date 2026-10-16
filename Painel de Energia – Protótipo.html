@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Painel de Energia – Protótipo</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700&family=Figtree:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#eaf0f2;--panel:#fff;--ink:#12252e;--mut:#5d7480;--line:#d5e0e5;--sun:#f0a20f;--ev:#0c9c9c;--gen:#6b5bd1;--ok:#1f9d63;--warn:#d98a00;--crit:#d23b3b;--side:#12252e;--sidetx:#cfe0e7;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0c171c;--panel:#14252d;--ink:#e6f0f4;--mut:#8aa3af;--line:#243a45;--side:#081114;--sidetx:#a9c1cc;--sun:#ffb62e;--ev:#2cc4c4;--gen:#9487f0}}
+:root[data-theme="dark"]{--bg:#0c171c;--panel:#14252d;--ink:#e6f0f4;--mut:#8aa3af;--line:#243a45;--sidetx:#a9c1cc;--sun:#ffb62e;--ev:#2cc4c4;--gen:#9487f0}
+*{box-sizing:border-box}html{color-scheme:light dark;scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 15px/1.45 Figtree,system-ui,sans-serif}
+h1,h2,h3{font-family:'Bricolage Grotesque',Figtree,sans-serif;margin:0;font-weight:700}
+.app{display:grid;grid-template-columns:220px 1fr;min-height:100vh}
+aside{background:var(--side,#12252e);color:var(--sidetx);padding:22px 16px;position:sticky;top:0;height:100vh}
+.brand{font:700 20px 'Bricolage Grotesque',sans-serif;color:#fff;margin-bottom:26px;display:flex;gap:10px;align-items:center}
+.brand i{width:26px;height:26px;border-radius:50% 50% 50% 4px;background:conic-gradient(var(--sun) 0 33%,var(--ev) 0 66%,var(--gen) 0);display:block}
+nav a{display:block;padding:9px 12px;border-radius:8px;color:inherit;text-decoration:none;margin-bottom:2px;cursor:pointer}
+nav a.on{background:rgba(255,255,255,.1);color:#fff}
+.side-foot{position:absolute;bottom:18px;left:16px;right:16px;font-size:12px;opacity:.8}
+main{padding:24px 28px 40px;min-width:0}
+.top{display:flex;flex-wrap:wrap;gap:14px;justify-content:space-between;align-items:flex-end;margin-bottom:18px}
+.top h1{font-size:28px}.top p{margin:2px 0 0;color:var(--mut)}
+.tools{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.seg{display:inline-flex;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:3px}
+.seg button{border:0;background:none;color:var(--mut);font:500 13px Figtree,sans-serif;padding:6px 12px;border-radius:7px;cursor:pointer}
+.seg button.on{background:var(--ink);color:var(--bg)}
+.btn{border:1px solid var(--line);background:var(--panel);color:var(--ink);font:600 13px Figtree,sans-serif;padding:8px 14px;border-radius:10px;cursor:pointer}
+button:focus-visible,a:focus-visible{outline:2px solid var(--ev);outline-offset:2px}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);background:var(--panel);border:1px solid var(--line);border-radius:14px;margin-bottom:16px}
+.kpi{padding:16px 20px;border-right:1px solid var(--line)}.kpi:last-child{border:0}
+.kpi small{color:var(--mut);display:flex;align-items:center;gap:7px}.kpi small b{width:9px;height:9px;border-radius:50%;display:inline-block}
+.kpi strong{display:block;font:700 30px 'Bricolage Grotesque',sans-serif;margin-top:4px}.kpi strong span{font-size:15px;color:var(--mut);font-weight:500}
+.kpi em{font-style:normal;font-size:12px;color:var(--ok)}
+.grid{display:grid;grid-template-columns:minmax(0,2fr) minmax(280px,1fr);gap:16px}
+.box{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px 20px;min-width:0}
+.box h2{font-size:17px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.legend{display:flex;gap:14px;font:500 12px Figtree;color:var(--mut)}.legend span{display:flex;align-items:center;gap:6px}.legend b{width:10px;height:10px;border-radius:3px}
+svg.chart{width:100%;height:auto;display:block}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.chip{border:1px solid var(--line);background:var(--panel);color:var(--ink);padding:6px 13px;border-radius:99px;font:500 13px Figtree;cursor:pointer;display:flex;gap:7px;align-items:center}
+.chip b{width:9px;height:9px;border-radius:50%}.chip.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.alert{display:flex;gap:11px;padding:10px 0;border-top:1px solid var(--line)}.alert:first-of-type{border:0}
+.alert i{flex:none;width:9px;height:9px;border-radius:50%;margin-top:6px}
+.alert p{margin:0;font-weight:600}.alert small{color:var(--mut)}
+.i-crit{background:var(--crit)}.i-warn{background:var(--warn)}.i-info{background:var(--ev)}
+.wide{margin-top:16px}
+.scroll{overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:640px}
+th{text-align:left;font:500 12px Figtree;color:var(--mut);padding:8px 10px;border-bottom:1px solid var(--line)}
+td{padding:11px 10px;border-bottom:1px solid var(--line);vertical-align:middle}
+tr:last-child td{border:0}
+.tag{display:inline-flex;align-items:center;gap:6px;font:600 12px Figtree;padding:3px 10px;border-radius:99px}
+.t-ok{background:color-mix(in srgb,var(--ok) 16%,transparent);color:var(--ok)}
+.t-warn{background:color-mix(in srgb,var(--warn) 18%,transparent);color:var(--warn)}
+.t-crit{background:color-mix(in srgb,var(--crit) 16%,transparent);color:var(--crit)}
+.t-off{background:var(--line);color:var(--mut)}
+.bar{height:7px;background:var(--line);border-radius:9px;overflow:hidden;min-width:80px}.bar i{display:block;height:100%}
+.name b{display:block}.name small{color:var(--mut)}
+.demo{background:color-mix(in srgb,var(--sun) 22%,var(--panel));border:1px solid var(--sun);border-radius:10px;padding:8px 14px;font-size:13px;margin-bottom:16px}
+#toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:10px;opacity:0;pointer-events:none;transition:opacity .2s;z-index:20}
+#toast.on{opacity:1}
+@media(max-width:900px){.app{grid-template-columns:1fr}aside{position:static;height:auto;padding:14px}.side-foot{display:none}nav{display:flex;gap:4px;overflow-x:auto}nav a{white-space:nowrap}.brand{margin-bottom:10px}.grid{grid-template-columns:1fr}.kpis{grid-template-columns:1fr 1fr}.kpi:nth-child(2){border-right:0}.kpi:nth-child(-n+2){border-bottom:1px solid var(--line)}main{padding:16px}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="app">
+<aside>
+  <div class="brand"><i></i>Energia360</div>
+  <nav>
+    <a class="on">Visão geral</a><a data-f="solar">Usinas solares</a><a data-f="ev">Eletropostos</a><a data-f="gen">Geradores</a><a>Alertas</a><a>Relatórios</a><a>Usuários</a>
+  </nav>
+  <div class="side-foot">Dados de todos os equipamentos em um só lugar. Atualizado há 2 min.</div>
+</aside>
+<main>
+  <div class="demo">Protótipo com dados fictícios, só para visualizar o layout. Os filtros e o período funcionam.</div>
+  <div class="top">
+    <div><h1 id="title">Visão geral da operação</h1><p>Eletropostos, usinas solares e geradores no mesmo painel.</p></div>
+    <div class="tools">
+      <div class="seg" id="per"><button data-p="dia" class="on">Dia</button><button data-p="semana">Semana</button><button data-p="mes">Mês</button><button data-p="ano">Ano</button></div>
+      <button class="btn" id="exp">Exportar dados (CSV)</button>
+    </div>
+  </div>
+  <div class="chips" id="chips"></div>
+  <section class="kpis" id="kpis"></section>
+  <div class="grid">
+    <div class="box">
+      <h2><span id="ctitle">Geração e consumo</span><span class="legend" id="leg"></span></h2>
+      <svg class="chart" id="chart" viewBox="0 0 800 280" role="img" aria-label="Gráfico de geração e consumo de energia"></svg>
+    </div>
+    <div class="box"><h2>Alertas abertos</h2><div id="alerts"></div></div>
+  </div>
+  <div class="box wide">
+    <h2>Equipamentos</h2>
+    <div class="scroll"><table><thead><tr><th>Equipamento</th><th>Tipo</th><th>Status</th><th>Potência agora</th><th>Hoje</th><th>Indicador</th></tr></thead><tbody id="rows"></tbody></table></div>
+  </div>
+</main>
+</div>
+<div id="toast"></div>
+<script>
+var T={solar:{n:'Usinas solares',c:'--sun'},ev:{n:'Eletropostos',c:'--ev'},gen:{n:'Geradores',c:'--gen'}};
+var state={p:'dia',f:{solar:1,ev:1,gen:1}};
+var A=[
+{n:'Usina Norte',s:'Inversores Huawei',t:'solar',st:'ok',pw:'842 kW',d:'5.310 kWh',ind:84,il:'da capacidade'},
+{n:'Usina Leste',s:'Inversores Growatt',t:'solar',st:'ok',pw:'1,2 MW',d:'7.940 kWh',ind:91,il:'da capacidade'},
+{n:'Usina Sul',s:'Inversores Sungrow',t:'solar',st:'crit',pw:'310 kW',d:'2.050 kWh',ind:38,il:'Inversor 3 offline'},
+{n:'Eletroposto Centro',s:'6 carregadores',t:'ev',st:'ok',pw:'184 kW',d:'1.320 kWh',ind:67,il:'4 de 6 em uso'},
+{n:'Eletroposto Rodovia',s:'4 carregadores',t:'ev',st:'warn',pw:'96 kW',d:'860 kWh',ind:50,il:'Conector 2 com falha'},
+{n:'Eletroposto Shopping',s:'8 carregadores',t:'ev',st:'ok',pw:'212 kW',d:'1.780 kWh',ind:62,il:'5 de 8 em uso'},
+{n:'Gerador GMG-01',s:'Standby',t:'gen',st:'off',pw:'0 kW',d:'0 kWh',ind:0,il:'Desligado'},
+{n:'Gerador GMG-02',s:'Em operação',t:'gen',st:'ok',pw:'148 kW',d:'420 kWh',ind:62,il:'62% da carga'},
+{n:'Gerador GMG-03',s:'Standby',t:'gen',st:'warn',pw:'0 kW',d:'0 kWh',ind:18,il:'Combustível 18%'}];
+var AL=[
+{t:'solar',l:'crit',m:'Inversor 3 sem comunicação',s:'Usina Sul · há 12 min'},
+{t:'ev',l:'warn',m:'Falha no conector 2',s:'Eletroposto Rodovia · há 1 h'},
+{t:'gen',l:'warn',m:'Nível de combustível baixo (18%)',s:'Gerador GMG-03 · há 2 h'},
+{t:'solar',l:'info',m:'Geração 9% abaixo do esperado',s:'Usina Leste · há 3 h'},
+{t:'ev',l:'info',m:'Pico de demanda às 18h',s:'Eletroposto Centro · ontem'}];
+var ST={ok:['Operando','t-ok'],warn:['Atenção','t-warn'],crit:['Falha','t-crit'],off:['Em espera','t-off']};
+function rnd(i){var x=Math.sin(i*97.13+3.7)*10000;return x-Math.floor(x)}
+var PD={dia:{n:24,lab:function(i){return i+'h'},step:3},semana:{n:7,lab:function(i){return['Seg','Ter','Qua','Qui','Sex','Sáb','Dom'][i]},step:1},mes:{n:30,lab:function(i){return i+1},step:3},ano:{n:12,lab:function(i){return['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'][i]},step:1}};
+function series(p){var d=PD[p],o={solar:[],ev:[],gen:[]};
+ for(var i=0;i<d.n;i++){var r=rnd(i+d.n),s,e,g;
+  if(p=='dia'){s=i>=6&&i<=18?Math.sin(Math.PI*(i-6)/12)*(2300+r*200)/6:0;e=40+Math.exp(-Math.pow(i-8,2)/6)*70+Math.exp(-Math.pow(i-18,2)/5)*110+r*20;g=i>=18&&i<=21?60+r*30:r*6}
+  else{var k=p=='semana'?1:p=='mes'?1:30;s=(15300*(.78+r*.3))*k;e=(4000*(.8+r*.4))*k;g=(420*r)*k}
+  o.solar.push(Math.round(s));o.ev.push(Math.round(e));o.gen.push(Math.round(g))}
+ return o}
+function sum(a){return a.reduce(function(x,y){return x+y},0)}
+function fmt(n){return n.toLocaleString('pt-BR')}
+function draw(){
+ var d=PD[state.p],S=series(state.p),W=800,H=280,L=48,B=28,Tp=10,w=W-L-6,h=H-B-Tp,max=1;
+ ['solar','ev','gen'].forEach(function(k){if(state.f[k])max=Math.max(max,Math.max.apply(null,S[k]))});
+ max=Math.ceil(max*1.1/10)*10;var out='',cs=getComputedStyle(document.documentElement);
+ for(var g=0;g<=4;g++){var y=Tp+h-h*g/4;out+='<line x1="'+L+'" x2="'+W+'" y1="'+y+'" y2="'+y+'" stroke="var(--line)"/><text x="'+(L-8)+'" y="'+(y+4)+'" text-anchor="end" font-size="11" fill="var(--mut)">'+fmt(Math.round(max*g/4))+'</text>'}
+ var bw=w/d.n;
+ if(state.f.solar)S.solar.forEach(function(v,i){var bh=h*v/max;out+='<rect x="'+(L+i*bw+bw*.15)+'" y="'+(Tp+h-bh)+'" width="'+(bw*.7)+'" height="'+bh+'" rx="3" fill="var(--sun)" opacity=".9"/>'});
+ function line(a,c,dash){var p=a.map(function(v,i){return(i?'L':'M')+(L+i*bw+bw/2).toFixed(1)+' '+(Tp+h-h*v/max).toFixed(1)}).join(' ');return'<path d="'+p+'" fill="none" stroke="var('+c+')" stroke-width="2.5" stroke-linejoin="round" '+(dash?'stroke-dasharray="6 5"':'')+'/>'}
+ if(state.f.ev)out+=line(S.ev,'--ev');if(state.f.gen)out+=line(S.gen,'--gen',1);
+ for(var i=0;i<d.n;i+=d.step)out+='<text x="'+(L+i*bw+bw/2)+'" y="'+(H-8)+'" text-anchor="middle" font-size="11" fill="var(--mut)">'+d.lab(i)+'</text>';
+ document.getElementById('chart').innerHTML=out;
+ var u=state.p=='dia'?'kWh por hora':'kWh por '+(state.p=='ano'?'mês':'dia');
+ document.getElementById('ctitle').textContent='Energia em '+u;
+ document.getElementById('leg').innerHTML=(state.f.solar?'<span><b style="background:var(--sun)"></b>Geração solar</span>':'')+(state.f.ev?'<span><b style="background:var(--ev)"></b>Consumo eletropostos</span>':'')+(state.f.gen?'<span><b style="background:var(--gen)"></b>Geradores</span>':'');
+ var lab={dia:'hoje',semana:'na semana',mes:'no mês',ano:'no ano'}[state.p];
+ var ks=[['solar','Geração solar','kWh',sum(S.solar),'+6,2% vs. período anterior'],['ev','Energia dos eletropostos','kWh',sum(S.ev),'+11% vs. período anterior'],['gen','Geradores','kWh',sum(S.gen),'2 de 3 em espera'],[0,'Alertas abertos','',AL.filter(function(a){return state.f[a.t]}).length,'1 crítico']];
+ document.getElementById('kpis').innerHTML=ks.map(function(k){var dot=k[0]?'<b style="background:var('+T[k[0]].c+')"></b>':'<b style="background:var(--crit)"></b>';var v=k[0]&&!state.f[k[0]]?'<span>oculto</span>':fmt(k[3])+(k[2]?' <span>'+k[2]+'</span>':'');return'<div class="kpi"><small>'+dot+k[1]+' '+(k[0]?lab:'')+'</small><strong>'+v+'</strong><em>'+k[4]+'</em></div>'}).join('');
+}
+function lists(){
+ document.getElementById('alerts').innerHTML=AL.filter(function(a){return state.f[a.t]}).map(function(a){return'<div class="alert"><i class="i-'+a.l+'"></i><div><p>'+a.m+'</p><small>'+a.s+'</small></div></div>'}).join('')||'<small>Nenhum alerta para os filtros escolhidos.</small>';
+ document.getElementById('rows').innerHTML=A.filter(function(a){return state.f[a.t]}).map(function(a){var c=a.st=='crit'?'--crit':a.st=='warn'?'--warn':T[a.t].c;return'<tr><td class="name"><b>'+a.n+'</b><small>'+a.s+'</small></td><td>'+T[a.t].n+'</td><td><span class="tag '+ST[a.st][1]+'">'+ST[a.st][0]+'</span></td><td>'+a.pw+'</td><td>'+a.d+'</td><td><div class="bar"><i style="width:'+a.ind+'%;background:var('+c+')"></i></div><small style="color:var(--mut)">'+a.il+'</small></td></tr>'}).join('')}
+function chips(){document.getElementById('chips').innerHTML=Object.keys(T).map(function(k){return'<button class="chip'+(state.f[k]?' on':'')+'" data-k="'+k+'"><b style="background:var('+T[k].c+')"></b>'+T[k].n+'</button>'}).join('')}
+function all(){chips();draw();lists()}
+document.getElementById('chips').onclick=function(e){var b=e.target.closest('.chip');if(!b)return;state.f[b.dataset.k]=state.f[b.dataset.k]?0:1;all()};
+document.getElementById('per').onclick=function(e){var b=e.target.closest('button');if(!b)return;state.p=b.dataset.p;[].forEach.call(this.children,function(x){x.classList.toggle('on',x==b)});draw()};
+document.querySelector('nav').onclick=function(e){var a=e.target.closest('a');if(!a)return;[].forEach.call(this.children,function(x){x.classList.toggle('on',x==a)});var f=a.dataset.f;if(f||a.textContent=='Visão geral'){Object.keys(state.f).forEach(function(k){state.f[k]=(!f||k==f)?1:0});document.getElementById('title').textContent=f?T[f].n:'Visão geral da operação';all()}};
+document.getElementById('exp').onclick=function(){var t=document.getElementById('toast');t.textContent='Na versão final, aqui baixa o histórico em CSV ou Excel.';t.classList.add('on');setTimeout(function(){t.classList.remove('on')},2800)};
+all();
+</script>
+</body>
+</html>
